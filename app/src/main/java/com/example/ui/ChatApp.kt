@@ -1108,11 +1108,11 @@ fun ChatApp(
                         )
                     }
 
-                    // Reasoning Effort Selection
+                    // LLM Thinking Level Selection
                     Column {
-                        Text("LLM Reasoning Effort", fontSize = 12.sp, color = GhostWhite, fontWeight = FontWeight.Bold)
+                        Text("LLM Thinking Level", fontSize = 12.sp, color = GhostWhite, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(4.dp))
-                        val efforts = listOf("none", "low", "medium", "high")
+                        val efforts = listOf("none", "minimal", "full")
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             modifier = Modifier.fillMaxWidth()
@@ -1127,7 +1127,7 @@ fun ChatApp(
                                         .border(1.dp, if (isEffortSelected) CyberCyan else ObsidianCard, RoundedCornerShape(8.dp))
                                         .clickable { selectedEffort = effort }
                                         .padding(vertical = 8.dp)
-                                        .testTag("reasoning_effort_${effort}"),
+                                        .testTag("thinking_level_${effort}"),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -1150,7 +1150,7 @@ fun ChatApp(
                             selectedModel = SettingsStore.DEFAULT_MODEL
                             selectedVoice = SettingsStore.DEFAULT_VOICE
                             saveHandsFreeEnabled = true
-                            selectedEffort = "none"
+                            selectedEffort = "minimal"
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent,

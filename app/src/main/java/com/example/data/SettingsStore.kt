@@ -17,7 +17,7 @@ class SettingsStore(context: Context) {
         const val DEFAULT_SYSTEM_PROMPT = "You are a helpful and expressive voice assistant. Respond concisely and speak naturally. You have a 'take_note' tool that you can use to write down notes, thoughts, and memos silently for the user without repeating the text aloud."
         const val DEFAULT_MODEL = "models/gemini-3.1-flash-live-preview"
         const val DEFAULT_VOICE = "Puck" // Options: Puck, Charon, Kore, Fenrir, Aoede
-        const val DEFAULT_REASONING_EFFORT = "none" // Options: none, low, medium, high
+        const val DEFAULT_REASONING_EFFORT = "minimal" // Options: none, minimal, full
     }
 
     var apiKey: String

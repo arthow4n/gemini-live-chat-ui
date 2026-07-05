@@ -38,7 +38,7 @@ object GeminiLiveClient {
         systemPrompt: String,
         rawMessages: List<ChatMessage>,
         userAudioFile: File?,
-        reasoningEffort: String = "none"
+        reasoningEffort: String = "minimal"
     ): LiveTurnResult {
         // ws URL for Gemini Live API
         val url = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=$apiKey"
@@ -75,19 +75,14 @@ object GeminiLiveClient {
                                         })
                                     })
                                 })
-                                if (reasoningEffort != "none") {
-                                    val budget = when (reasoningEffort) {
-                                        "low" -> 1024
-                                        "medium" -> 2048
-                                        "high" -> 4096
-                                        else -> 0
-                                    }
-                                    if (budget > 0) {
-                                        put("thinkingConfig", JSONObject().apply {
-                                            put("thinkingBudget", budget)
-                                        })
-                                    }
+                                val level = when (reasoningEffort) {
+                                    "none" -> "NONE"
+                                    "full" -> "FULL"
+                                    else -> "MINIMAL"
                                 }
+                                put("thinkingConfig", JSONObject().apply {
+                                    put("thinkingLevel", level)
+                                })
                             })
                             if (systemPrompt.isNotBlank()) {
                                 put("systemInstruction", JSONObject().apply {
