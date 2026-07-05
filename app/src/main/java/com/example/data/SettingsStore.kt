@@ -13,6 +13,7 @@ class SettingsStore(context: Context) {
         private const val KEY_VOICE_NAME = "default_voice_name"
         private const val KEY_HANDS_FREE_MODE = "hands_free_mode"
         private const val KEY_REASONING_EFFORT = "reasoning_effort"
+        private const val KEY_EXPECTED_LANGUAGE = "expected_language"
 
         const val DEFAULT_SYSTEM_PROMPT = "You are a helpful and expressive voice assistant. Respond concisely and speak naturally. You have a 'take_note' tool that you can use to write down notes, thoughts, and memos silently for the user without repeating the text aloud."
         const val DEFAULT_MODEL = "models/gemini-3.1-flash-live-preview"
@@ -43,6 +44,10 @@ class SettingsStore(context: Context) {
     var reasoningEffort: String
         get() = prefs.getString(KEY_REASONING_EFFORT, DEFAULT_REASONING_EFFORT) ?: DEFAULT_REASONING_EFFORT
         set(value) = prefs.edit().putString(KEY_REASONING_EFFORT, value).apply()
+
+    var expectedLanguage: String
+        get() = prefs.getString(KEY_EXPECTED_LANGUAGE, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_EXPECTED_LANGUAGE, value).apply()
 
     fun clear() {
         prefs.edit().clear().apply()

@@ -81,6 +81,9 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val _reasoningEffort = MutableStateFlow(repository.settingsStore.reasoningEffort)
     val reasoningEffort: StateFlow<String> = _reasoningEffort.asStateFlow()
 
+    private val _expectedLanguage = MutableStateFlow(repository.settingsStore.expectedLanguage)
+    val expectedLanguage: StateFlow<String> = _expectedLanguage.asStateFlow()
+
     // Temporary user recording file
     private var tempRecordFile: File? = null
 
@@ -170,6 +173,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         Log.d("ChatViewModel", "Reasoning effort set to $effort")
     }
 
+    fun saveExpectedLanguage(language: String) {
+        repository.settingsStore.expectedLanguage = language
+        _expectedLanguage.value = language
+        Log.d("ChatViewModel", "Expected language set to $language")
+    }
+
     fun resetSettingsToDefault() {
         repository.settingsStore.clear()
         _customApiKey.value = repository.settingsStore.apiKey
@@ -178,6 +187,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         _defaultVoice.value = repository.settingsStore.voiceName
         _handsFreeMode.value = repository.settingsStore.handsFreeMode
         _reasoningEffort.value = repository.settingsStore.reasoningEffort
+        _expectedLanguage.value = repository.settingsStore.expectedLanguage
         Log.d("ChatViewModel", "Settings reset to defaults successfully.")
     }
 
@@ -300,6 +310,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 val voiceName = thread.voiceName.ifBlank { SettingsStore.DEFAULT_VOICE }
                 val systemPrompt = thread.systemPrompt.ifBlank { "" }
                 val effort = _reasoningEffort.value
+                val expectedLang = _expectedLanguage.value
 
                 val result = GeminiLiveClient.executeLiveTurn(
                     apiKey = apiKey,
@@ -308,7 +319,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     systemPrompt = systemPrompt,
                     rawMessages = rawMessages,
                     userAudioFile = userAudioFile,
-                    reasoningEffort = effort
+                    reasoningEffort = effort,
+                    expectedLanguage = expectedLang
                 )
 
                 // Save audio file if present

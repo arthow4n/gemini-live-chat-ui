@@ -959,6 +959,8 @@ fun ChatApp(
         var saveHandsFreeEnabled by remember { mutableStateOf(handsFreeInitial) }
         val effortInitial by viewModel.reasoningEffort.collectAsStateWithLifecycle()
         var selectedEffort by remember { mutableStateOf(effortInitial) }
+        val languageInitial by viewModel.expectedLanguage.collectAsStateWithLifecycle()
+        var expectedLanguageText by remember { mutableStateOf(languageInitial) }
 
         AlertDialog(
             containerColor = ObsidianSurface,
@@ -1017,6 +1019,28 @@ fun ChatApp(
                                 focusedContainerColor = ObsidianBackground,
                                 unfocusedContainerColor = ObsidianBackground
                             )
+                        )
+                    }
+
+                    // Expected Language Selection
+                    Column {
+                        Text("Expected Assistant Output Language", fontSize = 12.sp, color = GhostWhite, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        OutlinedTextField(
+                            value = expectedLanguageText,
+                            onValueChange = { expectedLanguageText = it },
+                            placeholder = { Text("e.g. Spanish, Japanese, French (leave empty for default)", fontSize = 12.sp, color = SoftGray) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("expected_language_input"),
+                            textStyle = TextStyle(fontSize = 13.sp, color = GhostWhite),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = CyberCyan,
+                                unfocusedBorderColor = ObsidianCard,
+                                focusedContainerColor = ObsidianBackground,
+                                unfocusedContainerColor = ObsidianBackground
+                            ),
+                            singleLine = true
                         )
                     }
 
@@ -1151,6 +1175,7 @@ fun ChatApp(
                             selectedVoice = SettingsStore.DEFAULT_VOICE
                             saveHandsFreeEnabled = true
                             selectedEffort = "minimal"
+                            expectedLanguageText = ""
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent,
@@ -1221,6 +1246,7 @@ fun ChatApp(
                         viewModel.saveVoiceName(selectedVoice)
                         viewModel.saveHandsFreeMode(saveHandsFreeEnabled)
                         viewModel.saveReasoningEffort(selectedEffort)
+                        viewModel.saveExpectedLanguage(expectedLanguageText)
                         showApiKeyDialog = false
                     }
                 ) {

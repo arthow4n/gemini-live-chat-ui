@@ -38,7 +38,8 @@ object GeminiLiveClient {
         systemPrompt: String,
         rawMessages: List<ChatMessage>,
         userAudioFile: File?,
-        reasoningEffort: String = "minimal"
+        reasoningEffort: String = "minimal",
+        expectedLanguage: String = ""
     ): LiveTurnResult {
         // ws URL for Gemini Live API
         val url = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=$apiKey"
@@ -84,11 +85,20 @@ object GeminiLiveClient {
                                     put("thinkingLevel", level)
                                 })
                             })
-                            if (systemPrompt.isNotBlank()) {
+                            val finalSystemPrompt = if (expectedLanguage.isNotBlank()) {
+                                if (systemPrompt.isNotBlank()) {
+                                    "$systemPrompt\n\nRESPOND IN $expectedLanguage. YOU MUST RESPOND UNMISTAKABLY IN $expectedLanguage."
+                                } else {
+                                    "RESPOND IN $expectedLanguage. YOU MUST RESPOND UNMISTAKABLY IN $expectedLanguage."
+                                }
+                            } else {
+                                systemPrompt
+                            }
+                            if (finalSystemPrompt.isNotBlank()) {
                                 put("systemInstruction", JSONObject().apply {
                                     put("parts", JSONArray().apply {
                                         put(JSONObject().apply {
-                                            put("text", systemPrompt)
+                                            put("text", finalSystemPrompt)
                                         })
                                     })
                                 })
