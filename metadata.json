@@ -1,0 +1,6 @@
+{
+  "name": "Gemini Voice Chat",
+  "description": "Real-time voice chat with Gemini featuring a minimalist dark mode, fully customizable system prompts, thread management, and custom API key integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
