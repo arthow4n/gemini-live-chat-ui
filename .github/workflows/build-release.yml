@@ -75,9 +75,9 @@ jobs:
             RELEASE_NAME="Release $TAG_NAME"
             PRERELEASE=false
           else
-            TAG_NAME="latest-debug"
-            RELEASE_NAME="Continuous Debug Build"
-            PRERELEASE=true
+            TAG_NAME="v1.0.${{ github.run_number }}"
+            RELEASE_NAME="Release v1.0.${{ github.run_number }}"
+            PRERELEASE=false
           fi
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
@@ -91,5 +91,6 @@ jobs:
           draft: false
           prerelease: ${{ steps.release_info.outputs.prerelease }}
           files: ${{ steps.locate_apk.outputs.apk_path }}
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
