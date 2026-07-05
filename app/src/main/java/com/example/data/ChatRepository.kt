@@ -37,6 +37,10 @@ class ChatRepository(context: Context) {
         chatDao.deleteThread(thread)
     }
 
+    suspend fun deleteAllThreads() {
+        chatDao.deleteAllThreads()
+    }
+
     fun getMessagesForThread(threadId: Long): Flow<List<ChatMessage>> {
         return chatDao.getMessagesForThread(threadId)
     }

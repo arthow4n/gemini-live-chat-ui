@@ -238,6 +238,7 @@ class GeminiLiveService : Service() {
                 val modelName = thread.modelName.ifBlank { SettingsStore.DEFAULT_MODEL }
                 val voiceName = thread.voiceName.ifBlank { SettingsStore.DEFAULT_VOICE }
                 val systemPrompt = thread.systemPrompt.ifBlank { "" }
+                val reasoningEffort = repository.settingsStore.reasoningEffort
 
                 val result = GeminiLiveClient.executeLiveTurn(
                     apiKey = apiKey,
@@ -245,7 +246,8 @@ class GeminiLiveService : Service() {
                     voiceName = voiceName,
                     systemPrompt = systemPrompt,
                     rawMessages = rawMessages,
-                    userAudioFile = userAudioFile
+                    userAudioFile = userAudioFile,
+                    reasoningEffort = reasoningEffort
                 )
 
                 // Save model audio file

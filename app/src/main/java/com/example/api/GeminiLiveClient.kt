@@ -37,34 +37,35 @@ object GeminiLiveClient {
         voiceName: String,
         systemPrompt: String,
         rawMessages: List<ChatMessage>,
-        userAudioFile: File?
+        userAudioFile: File?,
+        reasoningEffort: String = "none"
     ): LiveTurnResult {
         // ws URL for Gemini Live API
         val url = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=$apiKey"
         val request = Request.Builder().url(url).build()
-
+ 
         val deferredResult = CompletableDeferred<LiveTurnResult>()
         val textAccumulator = StringBuilder()
         val audioAccumulator = ByteArrayOutputStream()
-
+ 
         var promptTokens = 0
         var candidatesTokens = 0
         var totalTokens = 0
         var cachedTokens = 0
-
-        Log.d("GeminiLiveClient", "Connecting to Gemini Live API WebSocket: models/gemini-3.1-flash-live-preview")
+ 
+        Log.d("GeminiLiveClient", "Connecting to Gemini Live API WebSocket: $modelName")
         LiveApiLogStore.addLog(LogDirection.INFO, "Connecting to Gemini Live API WebSocket...")
-
+ 
         val webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.d("GeminiLiveClient", "WebSocket opened. Sending setup config...")
                 LiveApiLogStore.addLog(LogDirection.INFO, "WebSocket Connection Opened successfully.")
-
+ 
                 try {
                     // 1. Send Setup Configuration Message
                     val setupJson = JSONObject().apply {
                         put("setup", JSONObject().apply {
-                            put("model", "models/gemini-3.1-flash-live-preview")
+                            put("model", modelName)
                             put("generationConfig", JSONObject().apply {
                                 put("responseModalities", JSONArray(listOf("AUDIO")))
                                 put("speechConfig", JSONObject().apply {
@@ -74,6 +75,19 @@ object GeminiLiveClient {
                                         })
                                     })
                                 })
+                                if (reasoningEffort != "none") {
+                                    val budget = when (reasoningEffort) {
+                                        "low" -> 1024
+                                        "medium" -> 2048
+                                        "high" -> 4096
+                                        else -> 0
+                                    }
+                                    if (budget > 0) {
+                                        put("thinkingConfig", JSONObject().apply {
+                                            put("thinkingBudget", budget)
+                                        })
+                                    }
+                                }
                             })
                             if (systemPrompt.isNotBlank()) {
                                 put("systemInstruction", JSONObject().apply {

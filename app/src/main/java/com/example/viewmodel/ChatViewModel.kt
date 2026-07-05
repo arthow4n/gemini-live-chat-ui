@@ -78,6 +78,9 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val _handsFreeMode = MutableStateFlow(repository.settingsStore.handsFreeMode)
     val handsFreeMode: StateFlow<Boolean> = _handsFreeMode.asStateFlow()
 
+    private val _reasoningEffort = MutableStateFlow(repository.settingsStore.reasoningEffort)
+    val reasoningEffort: StateFlow<String> = _reasoningEffort.asStateFlow()
+
     // Temporary user recording file
     private var tempRecordFile: File? = null
 
@@ -161,6 +164,23 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         Log.d("ChatViewModel", "Hands-Free Mode set to $enabled")
     }
 
+    fun saveReasoningEffort(effort: String) {
+        repository.settingsStore.reasoningEffort = effort
+        _reasoningEffort.value = effort
+        Log.d("ChatViewModel", "Reasoning effort set to $effort")
+    }
+
+    fun resetSettingsToDefault() {
+        repository.settingsStore.clear()
+        _customApiKey.value = repository.settingsStore.apiKey
+        _defaultSystemPrompt.value = repository.settingsStore.systemPrompt
+        _defaultModel.value = repository.settingsStore.modelName
+        _defaultVoice.value = repository.settingsStore.voiceName
+        _handsFreeMode.value = repository.settingsStore.handsFreeMode
+        _reasoningEffort.value = repository.settingsStore.reasoningEffort
+        Log.d("ChatViewModel", "Settings reset to defaults successfully.")
+    }
+
     // Thread actions
     fun createThread(title: String, customPrompt: String? = null, customModel: String? = null, customVoice: String? = null) {
         viewModelScope.launch {
@@ -193,6 +213,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             if (threads.isNotEmpty()) {
                 selectThread(threads.first().id)
             }
+        }
+    }
+
+    fun deleteAllThreads() {
+        viewModelScope.launch {
+            sendServiceAction(GeminiLiveService.ACTION_STOP_SERVICE)
+            _activeThreadId.value = null
+            repository.deleteAllThreads()
         }
     }
 
@@ -271,6 +299,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 val modelName = thread.modelName.ifBlank { SettingsStore.DEFAULT_MODEL }
                 val voiceName = thread.voiceName.ifBlank { SettingsStore.DEFAULT_VOICE }
                 val systemPrompt = thread.systemPrompt.ifBlank { "" }
+                val effort = _reasoningEffort.value
 
                 val result = GeminiLiveClient.executeLiveTurn(
                     apiKey = apiKey,
@@ -278,7 +307,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     voiceName = voiceName,
                     systemPrompt = systemPrompt,
                     rawMessages = rawMessages,
-                    userAudioFile = userAudioFile
+                    userAudioFile = userAudioFile,
+                    reasoningEffort = effort
                 )
 
                 // Save audio file if present

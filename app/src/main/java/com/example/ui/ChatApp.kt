@@ -957,6 +957,8 @@ fun ChatApp(
         var selectedVoice by remember { mutableStateOf(defaultVoice) }
         val handsFreeInitial by viewModel.handsFreeMode.collectAsStateWithLifecycle()
         var saveHandsFreeEnabled by remember { mutableStateOf(handsFreeInitial) }
+        val effortInitial by viewModel.reasoningEffort.collectAsStateWithLifecycle()
+        var selectedEffort by remember { mutableStateOf(effortInitial) }
 
         AlertDialog(
             containerColor = ObsidianSurface,
@@ -1105,6 +1107,108 @@ fun ChatApp(
                             )
                         )
                     }
+
+                    // Reasoning Effort Selection
+                    Column {
+                        Text("LLM Reasoning Effort", fontSize = 12.sp, color = GhostWhite, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        val efforts = listOf("none", "low", "medium", "high")
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            efforts.forEach { effort ->
+                                val isEffortSelected = selectedEffort == effort
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(if (isEffortSelected) CyberPurple else ObsidianBackground)
+                                        .border(1.dp, if (isEffortSelected) CyberCyan else ObsidianCard, RoundedCornerShape(8.dp))
+                                        .clickable { selectedEffort = effort }
+                                        .padding(vertical = 8.dp)
+                                        .testTag("reasoning_effort_${effort}"),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = effort.uppercase(),
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isEffortSelected) GhostWhite else SoftGray
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Reset Button
+                    Button(
+                        onClick = {
+                            viewModel.resetSettingsToDefault()
+                            apiKeyText = ""
+                            systemPromptText = SettingsStore.DEFAULT_SYSTEM_PROMPT
+                            selectedModel = SettingsStore.DEFAULT_MODEL
+                            selectedVoice = SettingsStore.DEFAULT_VOICE
+                            saveHandsFreeEnabled = true
+                            selectedEffort = "none"
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = CyberPink
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp)
+                            .border(1.dp, CyberPink.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .testTag("reset_settings_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Reset Settings",
+                            modifier = Modifier.size(16.dp),
+                            tint = CyberPink
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "RESET ALL SETTINGS",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            color = CyberPink
+                        )
+                    }
+
+                    // Delete All Chats Button
+                    Button(
+                        onClick = {
+                            viewModel.deleteAllThreads()
+                            showApiKeyDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = CyberPink
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                            .border(1.dp, CyberPink.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .testTag("delete_all_chats_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DeleteSweep,
+                            contentDescription = "Delete All Chats",
+                            modifier = Modifier.size(16.dp),
+                            tint = CyberPink
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "DELETE ALL CHATS",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            color = CyberPink
+                        )
+                    }
                 }
             },
             confirmButton = {
@@ -1116,6 +1220,7 @@ fun ChatApp(
                         viewModel.saveModelName(selectedModel)
                         viewModel.saveVoiceName(selectedVoice)
                         viewModel.saveHandsFreeMode(saveHandsFreeEnabled)
+                        viewModel.saveReasoningEffort(selectedEffort)
                         showApiKeyDialog = false
                     }
                 ) {

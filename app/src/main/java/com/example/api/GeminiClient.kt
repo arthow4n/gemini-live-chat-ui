@@ -42,7 +42,13 @@ data class InlineData(
 data class GenerationConfig(
     @Json(name = "responseModalities") val responseModalities: List<String>? = null,
     @Json(name = "speechConfig") val speechConfig: SpeechConfig? = null,
-    @Json(name = "temperature") val temperature: Float? = null
+    @Json(name = "temperature") val temperature: Float? = null,
+    @Json(name = "thinkingConfig") val thinkingConfig: ThinkingConfig? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class ThinkingConfig(
+    @Json(name = "thinkingBudget") val thinkingBudget: Int? = null
 )
 
 @JsonClass(generateAdapter = true)

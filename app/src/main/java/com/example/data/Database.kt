@@ -66,6 +66,9 @@ interface ChatDao {
 
     @Query("DELETE FROM chat_messages WHERE threadId = :threadId")
     suspend fun deleteMessagesForThread(threadId: Long)
+
+    @Query("DELETE FROM chat_threads")
+    suspend fun deleteAllThreads()
 }
 
 @Database(entities = [ChatThread::class, ChatMessage::class], version = 2, exportSchema = false)
